@@ -142,7 +142,7 @@ module.exports = {
   		{
   			moderator: req.params.mentorId
   		}
-  		);	
+		);	
   	await Mentor.findByIdAndUpdate(
   		req.params.mentorId,
   		{
@@ -150,7 +150,7 @@ module.exports = {
   				disciple: req.params.discipleId,
   			},
   		}
-  		);
+		);
 
   	await Moderator.findByIdAndUpdate(
   		req.params.mentorId,
@@ -159,7 +159,7 @@ module.exports = {
   				disciple: req.params.discipleId,
   			},
   		}
-  		);
+		);
 
   	await Admin.findByIdAndUpdate(
   		req.params.mentorId,
@@ -176,7 +176,7 @@ module.exports = {
 
   reportUser: async (req, res, next) => {
   	const rprt = await Report.create({
-  		name: req.params.id,
+  		user: req.params.id,
   		cause: req.body.cause,
   		date: req.body.date
   	});
@@ -186,7 +186,7 @@ module.exports = {
   	});
   },
 
-  getReport: async (req, res, next) => {
+  getReports: async (req, res, next) => {
   	Report.find({})
   	.then((data) => res.status(200).json({ data }))
   	.catch((err) => res.status(400).json({ err: err.message }));
@@ -195,8 +195,8 @@ module.exports = {
   absenUser: async (req, res, next) => {
   	await Presence.create({
   		user: req.params.id,
-  		status: req.params.status,
-  		date: req.params.date
+  		status: req.body.status,
+  		date: req.body.date
   	});
 
   	res.status(201).json({
@@ -214,6 +214,113 @@ module.exports = {
   	Presence.find({user: req.params.id})
   	.then((data) => res.status(200).json({ data }))
   	.catch((err) => res.status(400).json({ err: err.message }));
+  },
+
+  isAdmin: async (req, res, next) => {
+  	const token = req.headers["x-access-token"];
+  	if(!token) res.status(403).json({message: "no access token"});
+  	else {
+  		jwt.verify(token, config.secret, (err, decoded) => {
+  			if(err) res.status(500).json({message: "failed authenticate token."});
+  			if(decoded) {
+  				User.findById(decoded.id, (err, data) => {
+  					if(err) res.status(500).json({message: "failed authenticate token."});
+  					if(data){
+  						if(data.role != "admin" && decoded.role != "admin") res.status(403).json({message: "access denied."});
+  						else{
+  							if(data.name == decoded.name) next();
+  							else res.status(403).json({message: "access denied."});
+  						}
+  					}
+  				});
+  			}
+  		});
+
+  	}
+  },
+
+  isModerator: async (req, res, next) => {
+  	const token = req.headers["x-access-token"];
+  	if(!token) res.status(403).json({message: "no access token"});
+  	else {
+  		jwt.verify(token, config.secret, (err, decoded) => {
+  			if(err) res.status(500).json({message: "failed authenticate token."});
+  			if(decoded) {
+  				User.findById(decoded.id, (err, data) => {
+  					if(err) res.status(500).json({message: "failed authenticate token."});
+  					if(data){
+  						if(data.role != "moderator" && decoded.role != "moderator") res.status(403).json({message: "access denied."});
+  						else{
+  							if(data.name == decoded.name) next();
+  							else res.status(403).json({message: "access denied."});
+  						}
+  					}
+  				});
+  			}
+  		});
+
+  	}
+  },
+
+  isMentor: async (req, res, next) => {
+  	const token = req.headers["x-access-token"];
+  	if(!token) res.status(403).json({message: "no access token"});
+  	else {
+  		jwt.verify(token, config.secret, (err, decoded) => {
+  			if(err) res.status(500).json({message: "failed authenticate token."});
+  			if(decoded) {
+  				User.findById(decoded.id, (err, data) => {
+  					if(err) res.status(500).json({message: "failed authenticate token."});
+  					if(data){
+  						if(data.role != "mentor" && decoded.role != "mentor") res.status(403).json({message: "access denied."});
+  						else{
+  							if(data.name == decoded.name) next();
+  							else res.status(403).json({message: "access denied."});
+  						}
+  					}
+  				});
+  			}
+  		});
+
+  	}
+  },
+
+	verifyUser: async (req, res, next) => {
+  	const token = req.headers["x-access-token"];
+  	if(!token) res.status(403).json({message: "no access token"});
+  	else {
+  		jwt.verify(token, config.secret, (err, decoded) => {
+  			if(err) res.status(500).json({message: "failed authenticate token."});
+  			if(decoded) {
+  				User.findById(decoded.id, (err, data) => {
+  					if(err) res.status(500).json({message: "failed authenticate token."});
+  					if(data){
+  						var validRole = ["admin", "moderator", "mentor"];
+  						if(validRole.includes(data.role) && validRole.includes(decoded.role)) res.status(403).json({message: "access denied."});
+  						else{
+  							if(data.name == decoded.name) next();
+  							else res.status(403).json({message: "access denied."});
+  						}
+  					}
+  				});
+  			}
+  		});
+
+  	}
+  },  
+
+  login: async (req, res, next) => {
+  	const data = await User.findOne({user: req.body.user});
+
+  	if(data == null) res.status(401).json({message: "invalid credentials."});
+  	else {
+  		var passwordIsValid = bcrypt.compareSync(req.body.password, data.password);
+  		if(!passwordIsValid) res.status(401).json({auth: false, token: null, msg: "invalid credentials"});
+  		else{
+  			var token = jwt.sign({ id: data._id, user: data.user, role: data.role }, config.secret);
+  			res.status(200).json({auth: true, token: token});
+  		}
+  	}
   },
 
 

@@ -54,8 +54,7 @@ const DiscipleSchema = new Schema({
   // misal arep mbok gawe santrine iso login
   // opo ngko wong tuwo nganggo akun anak e wae yen arep ndelok
   // profile : {type: Schema.Types.ObjectId, ref: "User"}
-
-  class: String,
+ 
   // presence: [PresenceSchema],
   mentor: { type: Schema.Types.ObjectId, ref: "Mentor" },
 });

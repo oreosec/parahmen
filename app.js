@@ -24,6 +24,8 @@ const helmet = require("helmet");
 const connection = require("./connection");
 const mongoSanitize = require("express-mongo-sanitize");
 const cors = require("cors");
+const rateLimit = require("express-rate-limit");
+
 
 /* custom middleware */
 app.use(helmet());
@@ -33,6 +35,13 @@ const corsOptions = {
     credentials: true,
 };
 
+// const limiter = rateLimit({
+//     max: 5,
+//     windowMs: 3 * 60 * 1000,
+//     message: "Too many request from this IP"
+// });
+
 app.use(cors(corsOptions));
+// app.use(limiter);
 
 module.exports = app;
