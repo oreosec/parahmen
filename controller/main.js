@@ -50,6 +50,12 @@ module.exports = {
 		.catch((err) => res.status(400).json({ message: err.message }));
 	},
 
+	checkUserExisted: (req, res, next) => {
+		const data = User.findOne({user: req.body.user});
+		if(data) res.status(400).send({message: "user existed"});
+		else next();
+	},
+
   // // // //
   // handle request e neng front end, endpoint e dinamis tergantung milih opo ngko seng regis
   // cnth => selected role = mentor, http://api.tahidz-app.com/v1/mentor
@@ -136,18 +142,18 @@ module.exports = {
   	});
   },
 
-  refrenceDiscipleAndMentor: async (req, res) => {
+  refrenceDiscipleAndMentor: async (req, res, next) => {
   	await Disciple.findByIdAndUpdate(
   		req.params.discipleId,
   		{
-  			moderator: req.params.mentorId
+  			mentor: req.params.mentorId
   		}
 		);	
   	await Mentor.findByIdAndUpdate(
   		req.params.mentorId,
   		{
   			$push: {
-  				disciple: req.params.discipleId,
+  				disciples: req.params.discipleId,
   			},
   		}
 		);
@@ -156,7 +162,7 @@ module.exports = {
   		req.params.mentorId,
   		{
   			$push: {
-  				disciple: req.params.discipleId,
+  				disciples: req.params.discipleId,
   			},
   		}
 		);
@@ -165,10 +171,10 @@ module.exports = {
   		req.params.mentorId,
   		{
   			$push: {
-  				disciple: req.params.discipleId,
+  				disciples: req.params.discipleId,
   			},
   		}
-  		);
+		);
   	res.status(201).json({
   		message: "successfully referencing between documents",
   	});
@@ -311,7 +317,7 @@ module.exports = {
 
   login: async (req, res, next) => {
   	const data = await User.findOne({user: req.body.user});
-
+  	console.log(data.password);
   	if(data == null) res.status(401).json({message: "invalid credentials."});
   	else {
   		var passwordIsValid = bcrypt.compareSync(req.body.password, data.password);

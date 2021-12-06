@@ -9,6 +9,7 @@ var usersRouter = require('./routes/users');
 
 var app = express();
 
+app.disable('x-powered-by');
 app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
@@ -34,12 +35,6 @@ const corsOptions = {
     origin: "http://localhost:3000",
     credentials: true,
 };
-
-// const limiter = rateLimit({
-//     max: 5,
-//     windowMs: 3 * 60 * 1000,
-//     message: "Too many request from this IP"
-// });
 
 app.use(cors(corsOptions));
 // app.use(limiter);

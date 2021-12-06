@@ -1,10 +1,15 @@
 const router = require("express").Router();
 
+// anti csrf token
+const csrf = require("csurf");
+var csrfProtection = csrf({ cookie: true });
+
 const {
 	getUsers,
 	getMentors,
 	getModerators,
 	getDisciples,
+	checkUserExisted,
 	createMentor,
 	createModerator,
 	createDisciple,
@@ -52,9 +57,9 @@ router.get("/detail/disciple/:id", getDetailDisciple);
 respons:
 {'data': output database}
 */
-router.post("/mentor", createMentor);
-router.post("/moderator", isAdmin, createModerator);
-router.post("/disciple", createDisciple);
+router.post("/mentor", checkUserExisted, createMentor);
+router.post("/moderator", checkUserExisted, createModerator);
+router.post("/disciple", checkUserExisted, createDisciple);
 
 
 
@@ -123,10 +128,14 @@ response:
 	'token': 'eysadsjsdasxxx' // token jwt sg dinggo login ngko ngekei ne bagian header x-access-token
 }
 */
-router.post("/login", limiter, login);
+router.post("/login", [limiter, csrfProtection], login);
 
 
-router.put("/ref/:mentorId/:moderatorId", refrenceMentorAndModerator);
-router.put("/ref/:discipleId/:mentorId", refrenceDiscipleAndMentor);
+router.put("/ref/menmod/:mentorId/:moderatorId", refrenceMentorAndModerator);
+router.put("/ref/dismen/:discipleId/:mentorId", refrenceDiscipleAndMentor);
 
+
+router.get("/csrfToken", csrfProtection, (req, res, next) => {
+	res.send({ csrfToken: req.csrfToken()});
+})
 module.exports = router;

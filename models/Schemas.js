@@ -53,10 +53,12 @@ const MentorSchema = new Schema({
 const DiscipleSchema = new Schema({
   // misal arep mbok gawe santrine iso login
   // opo ngko wong tuwo nganggo akun anak e wae yen arep ndelok
-  // profile : {type: Schema.Types.ObjectId, ref: "User"}
+  profile : {type: Schema.Types.ObjectId, ref: "User"},
  
   // presence: [PresenceSchema],
   mentor: { type: Schema.Types.ObjectId, ref: "Mentor" },
+  mentor: { type: Schema.Types.ObjectId, ref: "Moderator" },
+  mentor: { type: Schema.Types.ObjectId, ref: "Admin" },
 });
  
 const [User, Admin, Moderator, Mentor, Disciple, Report, Presence] = [
