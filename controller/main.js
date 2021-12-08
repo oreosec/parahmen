@@ -223,7 +223,7 @@ module.exports = {
   },
 
   isAdmin: async (req, res, next) => {
-  	const token = req.headers["x-access-token"];
+  	const token = req.cookies.token
   	if(!token) res.status(403).json({message: "no access token"});
   	else {
   		jwt.verify(token, config.secret, (err, decoded) => {
@@ -246,7 +246,7 @@ module.exports = {
   },
 
   isModerator: async (req, res, next) => {
-  	const token = req.headers["x-access-token"];
+  	const token = req.cookies.token
   	if(!token) res.status(403).json({message: "no access token"});
   	else {
   		jwt.verify(token, config.secret, (err, decoded) => {
@@ -269,7 +269,7 @@ module.exports = {
   },
 
   isMentor: async (req, res, next) => {
-  	const token = req.headers["x-access-token"];
+  	const token = req.cookies.token
   	if(!token) res.status(403).json({message: "no access token"});
   	else {
   		jwt.verify(token, config.secret, (err, decoded) => {
@@ -292,7 +292,7 @@ module.exports = {
   },
 
 	verifyUser: async (req, res, next) => {
-  	const token = req.headers["x-access-token"];
+  	const token = req.cookies.token
   	if(!token) res.status(403).json({message: "no access token"});
   	else {
   		jwt.verify(token, config.secret, (err, decoded) => {
@@ -317,13 +317,13 @@ module.exports = {
 
   login: async (req, res, next) => {
   	const data = await User.findOne({user: req.body.user});
-  	console.log(data.password);
   	if(data == null) res.status(401).json({message: "invalid credentials."});
   	else {
   		var passwordIsValid = bcrypt.compareSync(req.body.password, data.password);
   		if(!passwordIsValid) res.status(401).json({auth: false, token: null, msg: "invalid credentials"});
   		else{
   			var token = jwt.sign({ id: data._id, user: data.user, role: data.role }, config.secret);
+  			res.cookie('token', token, {httpOnly: true});
   			res.status(200).json({auth: true, token: token});
   		}
   	}

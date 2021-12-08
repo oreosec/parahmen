@@ -1,4 +1,4 @@
-const router = require("express").Router();
+	const router = require("express").Router();
 
 // anti csrf token
 const csrf = require("csurf");
@@ -128,7 +128,8 @@ response:
 	'token': 'eysadsjsdasxxx' // token jwt sg dinggo login ngko ngekei ne bagian header x-access-token
 }
 */
-router.post("/login", [limiter, csrfProtection], login);
+// router.post("/login", [limiter, csrfProtection], login);
+router.post("/login", login);
 
 
 router.put("/ref/menmod/:mentorId/:moderatorId", refrenceMentorAndModerator);
@@ -138,4 +139,5 @@ router.put("/ref/dismen/:discipleId/:mentorId", refrenceDiscipleAndMentor);
 router.get("/csrfToken", csrfProtection, (req, res, next) => {
 	res.send({ csrfToken: req.csrfToken()});
 })
+
 module.exports = router;
