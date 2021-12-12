@@ -9,6 +9,22 @@ var usersRouter = require('./routes/users');
 
 var app = express();
 
+const helmet = require("helmet");
+const mongoSanitize = require("express-mongo-sanitize");
+const cors = require("cors");
+const hpp = require("hpp");
+
+const corsOptions = {
+    origin: "http://127.0.0.1:3000",
+    methods: "GET,PUT,POST,DELETE",
+    allowedHeaders: ["Content-Type"]
+}
+
+app.use(hpp());
+app.use(helmet());
+app.use(mongoSanitize());
+app.use(cors(corsOptions));
+
 app.disable('x-powered-by');
 app.use(logger('dev'));
 app.use(express.json());
@@ -21,22 +37,6 @@ app.use('/api', apiRouter);
 app.use('/users', usersRouter);
 
 /* custom constanta */
-const helmet = require("helmet");
 const connection = require("./connection");
-const mongoSanitize = require("express-mongo-sanitize");
-const cors = require("cors");
-const rateLimit = require("express-rate-limit");
-
-
-/* custom middleware */
-app.use(helmet());
-app.use(mongoSanitize());
-const corsOptions = {
-    origin: "http://localhost:3000",
-    credentials: true,
-};
-
-app.use(cors(corsOptions));
-// app.use(limiter);
 
 module.exports = app;

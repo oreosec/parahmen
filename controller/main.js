@@ -324,7 +324,7 @@ module.exports = {
   		else{
   			var token = jwt.sign({ id: data._id, user: data.user, role: data.role }, config.secret);
   			res.cookie('token', token, {httpOnly: true});
-  			res.status(200).json({auth: true, token: token});
+  			res.status(200).json({auth: true, accessToken: token});
   		}
   	}
   },
